@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strimo — サポート</title>
+<style>
+:root {
+  --blue-50: #f0f6fc;
+  --blue-100: #dbeafc;
+  --blue-200: #bcd8f5;
+  --blue-300: #8fbce9;
+  --blue-400: #4A90D9;
+  --blue-500: #3a7fc8;
+  --blue-600: #2c6fb5;
+  --blue-700: #1f5a9e;
+  --blue-800: #16487f;
+  --blue-900: #0f3a68;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Maru Gothic ProN', 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: var(--gray-800);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hero {
+  background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 50%, var(--blue-500) 100%);
+  color: white;
+  padding: 80px 20px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.07) 0%, transparent 50%),
+              radial-gradient(circle at 70% 30%, rgba(255,255,255,0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-content { position: relative; z-index: 1; }
+.hero-icon { margin-bottom: 16px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2)); }
+.hero-icon img { width: 96px; height: 96px; border-radius: 22px; }
+.hero h1 { font-size: 2.4em; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 12px; }
+.hero p { font-size: 1.15em; opacity: 0.92; max-width: 540px; margin: 0 auto; }
+
+.lang-switch { position: absolute; top: 20px; right: 20px; z-index: 10; }
+.lang-switch a {
+  color: rgba(255,255,255,0.75); text-decoration: none; font-size: 0.85em;
+  padding: 6px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; transition: all 0.2s;
+}
+.lang-switch a:hover { color: white; border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); }
+
+.badge {
+  display: inline-block; background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px;
+  font-size: 0.85em; margin-top: 20px; letter-spacing: 0.02em;
+}
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+.section { padding: 60px 0; border-bottom: 1px solid var(--gray-100); }
+.section:last-child { border-bottom: none; }
+
+.section-label {
+  display: inline-block; font-size: 0.75em; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--blue-600); background: var(--blue-50);
+  padding: 4px 12px; border-radius: 4px; margin-bottom: 12px;
+}
+
+.section h2 { font-size: 1.7em; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; letter-spacing: -0.01em; }
+.section .subtitle { color: var(--gray-500); font-size: 1.05em; margin-bottom: 32px; }
+
+.faq-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;
+}
+.faq-card {
+  background: white; border: 1px solid var(--gray-200); border-radius: 16px; padding: 28px; transition: all 0.25s ease;
+}
+.faq-card:hover { border-color: var(--blue-300); box-shadow: 0 8px 24px rgba(0,0,0,0.06); transform: translateY(-2px); }
+.faq-icon {
+  width: 48px; height: 48px; border-radius: 12px; background: var(--blue-50);
+  display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 16px;
+}
+.faq-card h3 { font-size: 1.05em; font-weight: 600; margin-bottom: 8px; color: var(--gray-800); }
+.faq-card p { color: var(--gray-500); font-size: 0.92em; line-height: 1.65; }
+.faq-card p .step { color: var(--blue-700); font-weight: 600; }
+
+.contact-note {
+  background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 12px; padding: 22px 24px; text-align: center;
+}
+.contact-note p { color: var(--gray-600); font-size: 0.95em; }
+.contact-note p + p { margin-top: 8px; }
+.contact-note a { color: var(--blue-600); text-decoration: none; font-weight: 500; }
+.contact-note a:hover { text-decoration: underline; }
+
+.link-row { display: flex; flex-wrap: wrap; gap: 16px; }
+.link-btn {
+  flex: 1; min-width: 200px; display: flex; align-items: center; gap: 12px;
+  background: white; border: 1px solid var(--gray-200); border-radius: 12px; padding: 16px 20px;
+  text-decoration: none; color: var(--gray-800); transition: all 0.2s;
+}
+.link-btn:hover { border-color: var(--blue-300); box-shadow: 0 4px 14px rgba(0,0,0,0.05); }
+.link-btn .ic { font-size: 20px; }
+
+.footer { text-align: center; padding: 40px 20px; color: var(--gray-500); font-size: 0.85em; }
+.footer a { color: var(--blue-600); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+.footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 12px; flex-wrap: wrap; }
+
+@media (max-width: 600px) {
+  .hero { padding: 60px 20px 40px; }
+  .hero h1 { font-size: 1.8em; }
+  .section { padding: 40px 0; }
+  .section h2 { font-size: 1.4em; }
+  .faq-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gray-50: #1a1a2e; --gray-100: #1e1e32; --gray-200: #2a2a3e; --gray-300: #3a3a4e;
+    --gray-500: #9ca3af; --gray-600: #bcc3cf; --gray-700: #d1d5db; --gray-800: #e5e7eb; --gray-900: #f3f4f6;
+  }
+  body { background: #0f0f1a; color: var(--gray-800); }
+  .faq-card, .contact-note, .link-btn { background: #161625; }
+  .section-label { background: #14233a; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="lang-switch"><a href="./en/">English</a></div>
+  <div class="hero-content">
+    <div class="hero-icon"><img src="./icon.png" alt="Strimo"></div>
+    <h1>サポート</h1>
+    <p>歩くほど、強くなる。 Strimo の使い方・困ったときのヘルプ</p>
+    <div class="badge">最終更新日: 2026年6月16日</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section">
+    <span class="section-label">FAQ</span>
+    <h2>よくある質問</h2>
+    <p class="subtitle">つまずきやすいポイントをまとめました</p>
+
+    <div class="faq-grid">
+      <div class="faq-card">
+        <div class="faq-icon">👟</div>
+        <h3>歩数が反映されない</h3>
+        <p>iPhone の <span class="step">設定 &gt; プライバシーとセキュリティ &gt; ヘルスケア &gt; Strimo</span> で歩数の読み取りが許可されているか確認してください。Apple Watch をお使いの場合は、Watch 単体でも歩数を取得します。</p>
+      </div>
+      <div class="faq-card">
+        <div class="faq-icon">💾</div>
+        <h3>データが消えた / 復旧モードと表示される</h3>
+        <p>データ読み込みに失敗すると一時的な復旧モードで起動します。以前のデータは自動でバックアップに退避されています。<span class="step">アプリを再起動</span>すると通常モードで開けるか再試行されます。</p>
+      </div>
+      <div class="faq-card">
+        <div class="faq-icon">💳</div>
+        <h3>サブスクの解約・確認</h3>
+        <p>月額パスの管理・解約は <span class="step">設定 &gt; Apple ID &gt; サブスクリプション</span> から行えます。買い切り商品（広告除去・エディタ全開放）は一度の購入で永続的に有効です。</p>
+      </div>
+      <div class="faq-card">
+        <div class="faq-icon">📡</div>
+        <h3>すれ違い通信が動かない</h3>
+        <p>すれ違いには Bluetooth と位置情報の許可、相手が近くにいることが必要です。各権限を許可し、アプリを起動した状態でお試しください。</p>
+      </div>
+      <div class="faq-card">
+        <div class="faq-icon">🎨</div>
+        <h3>AI 画像生成について</h3>
+        <p>AI 生成は 1 日 3 回まで利用できます（1 回目無料、2〜3 回目は広告視聴）。生成した画像の権利はあなたに帰属します。</p>
+      </div>
+      <div class="faq-card">
+        <div class="faq-icon">🗑️</div>
+        <h3>アカウントを削除したい</h3>
+        <p>アプリ内の <span class="step">設定 &gt; アカウント</span> から削除できます。削除するとサーバー上のデータを含むすべてのデータが完全に削除され、復元できません。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-label">Contact</span>
+    <h2>お問い合わせ</h2>
+    <p class="subtitle">解決しない場合はこちらから</p>
+
+    <div class="contact-note">
+      <p>アプリ内の <strong>設定 &gt; フィードバックを送る</strong> からご連絡いただけます。</p>
+      <p>または <a href="https://github.com/kizzz9/strimo-support/issues">GitHub Issues</a> へご報告ください。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-label">Links</span>
+    <h2>各種リンク</h2>
+    <p class="subtitle"></p>
+
+    <div class="link-row">
+      <a class="link-btn" href="https://kizzz9.github.io/strimo-privacy-policy/">
+        <span class="ic">🔒</span><span>プライバシーポリシー</span>
+      </a>
+      <a class="link-btn" href="https://github.com/kizzz9/strimo-support/issues">
+        <span class="ic">💬</span><span>不具合・要望を報告</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-links">
+    <a href="https://kizzz9.github.io/strimo-privacy-policy/">プライバシーポリシー</a>
+    <a href="https://github.com/kizzz9/strimo-support/issues">お問い合わせ</a>
+    <a href="./en/">English</a>
+  </div>
+  <p>&copy; 2026 Strimo. All rights reserved.</p>
+</div>
+
+</body>
+</html>
