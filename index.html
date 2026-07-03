@@ -236,6 +236,25 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
   .card, .faq-card, .note, .contact-note, .important { background: #fff; }
   th { background: #ddd; color: #111; }
 }
+
+/* ───────── contact form ───────── */
+.contact-form { margin-top: 18px; display: grid; gap: 14px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.contact-form label { display: block; font-size: .88em; color: var(--ink-dim); }
+.contact-form input, .contact-form textarea {
+  width: 100%; margin-top: 6px; padding: 11px 13px;
+  font-family: var(--body); font-size: 1em; color: var(--ink);
+  background: var(--bg-2); border: 2px solid var(--line); outline: none;
+  transition: border-color .15s; resize: vertical;
+}
+.contact-form input:focus, .contact-form textarea:focus { border-color: var(--green-deep); }
+.contact-form button { cursor: pointer; justify-self: start; font-size: 1em; }
+.contact-form button:disabled { opacity: .5; cursor: wait; }
+.hp-field { position: absolute !important; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.form-status { font-family: var(--pixel); font-size: .92em; min-height: 1.5em; margin: 0; }
+.form-status.ok { color: var(--green); }
+.form-status.err { color: var(--red); }
+@media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -308,6 +327,16 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
       <p>アプリ内の <strong>設定 &gt; フィードバックを送る</strong> からご連絡いただけます。</p>
       <p>または <a href="https://github.com/kizzz9/strimo-support/issues">GitHub Issues</a> へご報告ください。</p>
     </div>
+    <form class="contact-form" id="contact-form" novalidate>
+      <div class="form-row">
+        <label>お名前（任意）<input type="text" name="name" maxlength="100" autocomplete="name"></label>
+        <label>返信用メール（任意）<input type="email" name="email" maxlength="200" autocomplete="email"></label>
+      </div>
+      <label>お問い合わせ内容<textarea name="message" required minlength="5" maxlength="2000" rows="5" placeholder="不具合の報告・ご質問・ご要望など、なんでもどうぞ"></textarea></label>
+      <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="link-btn">▸ 送信する</button>
+      <p class="form-status" role="status" aria-live="polite"></p>
+    </form>
   </section>
 
   <section class="section" id="section-3">
@@ -345,6 +374,29 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
     entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } });
   }, { rootMargin: '0px 0px -8% 0px' });
   document.querySelectorAll('.section').forEach(function (s) { io.observe(s); });
+})();
+
+(function () {
+  var f = document.getElementById('contact-form');
+  if (!f) return;
+  var st = f.querySelector('.form-status');
+  var btn = f.querySelector('button[type=submit]');
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var msg = f.message.value.trim();
+    if (msg.length < 5) { st.textContent = '5文字以上で入力してください。'; st.className = 'form-status err'; return; }
+    btn.disabled = true; st.textContent = '...'; st.className = 'form-status';
+    fetch('https://qvfamomkdkywybjnzzal.supabase.co/functions/v1/web-contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: f.name.value, email: f.email.value, message: msg, website: f.website.value, lang: 'ja' })
+    }).then(function (r) {
+      if (!r.ok) throw new Error(String(r.status));
+      st.textContent = '送信しました。ありがとうございます！'; st.className = 'form-status ok'; f.reset();
+    }).catch(function () {
+      st.textContent = '送信に失敗しました。時間をおいて再度お試しください。'; st.className = 'form-status err';
+    }).finally(function () { btn.disabled = false; });
+  });
 })();
 </script>
 </body>
