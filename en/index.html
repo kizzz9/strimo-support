@@ -254,8 +254,10 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
 .form-status { font-family: var(--pixel); font-size: .92em; min-height: 1.5em; margin: 0; }
 .form-status.ok { color: var(--green); }
 .form-status.err { color: var(--red); }
+.cf-turnstile { margin: 2px 0; }
 @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
 </style>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
@@ -333,6 +335,7 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
       </div>
       <label>Message<textarea name="message" required minlength="5" maxlength="2000" rows="5" placeholder="Bug reports, questions, and suggestions are all welcome"></textarea></label>
       <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAADv-5iOVlinTmIvp" data-theme="dark" data-language="en"></div>
       <button type="submit" class="link-btn">▸ Send</button>
       <p class="form-status" role="status" aria-live="polite"></p>
     </form>
@@ -384,17 +387,20 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
     e.preventDefault();
     var msg = f.message.value.trim();
     if (msg.length < 5) { st.textContent = 'Please enter at least 5 characters.'; st.className = 'form-status err'; return; }
+    var tsEl = f.querySelector('[name="cf-turnstile-response"]');
+    var token = tsEl ? tsEl.value : '';
+    if (!token) { st.textContent = 'Please complete the "I am not a robot" check.'; st.className = 'form-status err'; return; }
     btn.disabled = true; st.textContent = '...'; st.className = 'form-status';
     fetch('https://qvfamomkdkywybjnzzal.supabase.co/functions/v1/web-contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: f.name.value, email: f.email.value, message: msg, website: f.website.value, lang: 'en' })
+      body: JSON.stringify({ name: f.name.value, email: f.email.value, message: msg, website: f.website.value, lang: 'en', token: token })
     }).then(function (r) {
       if (!r.ok) throw new Error(String(r.status));
       st.textContent = 'Sent! Thank you for your feedback.'; st.className = 'form-status ok'; f.reset();
     }).catch(function () {
       st.textContent = 'Failed to send. Please try again later.'; st.className = 'form-status err';
-    }).finally(function () { btn.disabled = false; });
+    }).finally(function () { btn.disabled = false; if (window.turnstile) turnstile.reset(); });
   });
 })();
 </script>

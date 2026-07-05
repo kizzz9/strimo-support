@@ -254,8 +254,10 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
 .form-status { font-family: var(--pixel); font-size: .92em; min-height: 1.5em; margin: 0; }
 .form-status.ok { color: var(--green); }
 .form-status.err { color: var(--red); }
+.cf-turnstile { margin: 2px 0; }
 @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
 </style>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
@@ -333,6 +335,7 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
       </div>
       <label>お問い合わせ内容<textarea name="message" required minlength="5" maxlength="2000" rows="5" placeholder="不具合の報告・ご質問・ご要望など、なんでもどうぞ"></textarea></label>
       <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAADv-5iOVlinTmIvp" data-theme="dark" data-language="ja"></div>
       <button type="submit" class="link-btn">▸ 送信する</button>
       <p class="form-status" role="status" aria-live="polite"></p>
     </form>
@@ -384,17 +387,20 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
     e.preventDefault();
     var msg = f.message.value.trim();
     if (msg.length < 5) { st.textContent = '5文字以上で入力してください。'; st.className = 'form-status err'; return; }
+    var tsEl = f.querySelector('[name="cf-turnstile-response"]');
+    var token = tsEl ? tsEl.value : '';
+    if (!token) { st.textContent = 'ロボットでないことの確認を完了してください。'; st.className = 'form-status err'; return; }
     btn.disabled = true; st.textContent = '...'; st.className = 'form-status';
     fetch('https://qvfamomkdkywybjnzzal.supabase.co/functions/v1/web-contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: f.name.value, email: f.email.value, message: msg, website: f.website.value, lang: 'ja' })
+      body: JSON.stringify({ name: f.name.value, email: f.email.value, message: msg, website: f.website.value, lang: 'ja', token: token })
     }).then(function (r) {
       if (!r.ok) throw new Error(String(r.status));
       st.textContent = '送信しました。ありがとうございます！'; st.className = 'form-status ok'; f.reset();
     }).catch(function () {
       st.textContent = '送信に失敗しました。時間をおいて再度お試しください。'; st.className = 'form-status err';
-    }).finally(function () { btn.disabled = false; });
+    }).finally(function () { btn.disabled = false; if (window.turnstile) turnstile.reset(); });
   });
 })();
 </script>
