@@ -387,6 +387,7 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
     e.preventDefault();
     var msg = f.message.value.trim();
     if (msg.length < 5) { st.textContent = '5文字以上で入力してください。'; st.className = 'form-status err'; return; }
+    if (f.email.value.trim() && !f.email.checkValidity()) { st.textContent = 'メールアドレスの形式をご確認ください。'; st.className = 'form-status err'; return; }
     var tsEl = f.querySelector('[name="cf-turnstile-response"]');
     var token = tsEl ? tsEl.value : '';
     if (!token) { st.textContent = 'ロボットでないことの確認を完了してください。'; st.className = 'form-status err'; return; }
@@ -398,8 +399,13 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
     }).then(function (r) {
       if (!r.ok) throw new Error(String(r.status));
       st.textContent = '送信しました。ありがとうございます！'; st.className = 'form-status ok'; f.reset();
-    }).catch(function () {
-      st.textContent = '送信に失敗しました。時間をおいて再度お試しください。'; st.className = 'form-status err';
+    }).catch(function (err) {
+      var s = err && err.message;
+      if (s === '400') { st.textContent = '入力内容をご確認ください。'; }
+      else if (s === '403') { st.textContent = 'ロボットでないことの確認に失敗しました。もう一度チェックしてお試しください。'; }
+      else if (s === '429') { st.textContent = '送信が混み合っています。しばらく時間をおいてお試しください。'; }
+      else { st.textContent = '送信に失敗しました。時間をおいて再度お試しください。'; }
+      st.className = 'form-status err';
     }).finally(function () { btn.disabled = false; if (window.turnstile) turnstile.reset(); });
   });
 })();

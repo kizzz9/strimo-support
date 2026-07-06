@@ -387,6 +387,7 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
     e.preventDefault();
     var msg = f.message.value.trim();
     if (msg.length < 5) { st.textContent = 'Please enter at least 5 characters.'; st.className = 'form-status err'; return; }
+    if (f.email.value.trim() && !f.email.checkValidity()) { st.textContent = 'Please check the email address format.'; st.className = 'form-status err'; return; }
     var tsEl = f.querySelector('[name="cf-turnstile-response"]');
     var token = tsEl ? tsEl.value : '';
     if (!token) { st.textContent = 'Please complete the "I am not a robot" check.'; st.className = 'form-status err'; return; }
@@ -398,8 +399,13 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
     }).then(function (r) {
       if (!r.ok) throw new Error(String(r.status));
       st.textContent = 'Sent! Thank you for your feedback.'; st.className = 'form-status ok'; f.reset();
-    }).catch(function () {
-      st.textContent = 'Failed to send. Please try again later.'; st.className = 'form-status err';
+    }).catch(function (err) {
+      var s = err && err.message;
+      if (s === '400') { st.textContent = 'Please check your input.'; }
+      else if (s === '403') { st.textContent = 'Human verification failed. Please complete the check and try again.'; }
+      else if (s === '429') { st.textContent = 'Too many requests right now. Please try again later.'; }
+      else { st.textContent = 'Failed to send. Please try again later.'; }
+      st.className = 'form-status err';
     }).finally(function () { btn.disabled = false; if (window.turnstile) turnstile.reset(); });
   });
 })();
