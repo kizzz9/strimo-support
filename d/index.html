@@ -414,17 +414,29 @@ function decodeAnimation(json) {
   return frames;
 }
 
-function paint(ctx, pixels) {
+/** コマを ImageBitmap に焼いておく。毎コマ fillRect を撒くと 128x128 で
+ *  1コマ 16,384 回になり、短い duration と重なって CPU が張り付く */
+function rasterize(pixels) {
   const { size, flat } = pixels;
-  ctx.clearRect(0, 0, size, size);
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const color = flat[y * size + x];
-      if (!color) continue;
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, 1, 1);
-    }
+  const data = new Uint8ClampedArray(size * size * 4);
+  for (let i = 0; i < flat.length; i++) {
+    const c = flat[i];
+    if (!c) continue;               // 透明のまま
+    const m = /^#?([0-9a-f]{6})$/i.exec(c);
+    if (!m) continue;
+    const n = parseInt(m[1], 16);
+    const o = i * 4;
+    data[o] = (n >> 16) & 255;
+    data[o + 1] = (n >> 8) & 255;
+    data[o + 2] = n & 255;
+    data[o + 3] = 255;
   }
+  return new ImageData(data, size, size);
+}
+
+function paint(ctx, image) {
+  ctx.clearRect(0, 0, image.width, image.height);
+  ctx.putImageData(image, 0, 0);
 }
 
 let animationTimer = null;
@@ -442,14 +454,18 @@ function draw(pixels, frames) {
   artEl.replaceChildren(canvas);
 
   if (!frames) {
-    paint(ctx, pixels);
+    paint(ctx, rasterize(pixels));
     return;
   }
 
+  // コマは先に焼いておく。再生中は putImageData 1回で済む
+  const images = frames.map(f => rasterize(f.pixels));
+
   let i = 0;
   const step = () => {
-    paint(ctx, frames[i].pixels);
-    const wait = Math.max(60, frames[i].duration * 1000);
+    paint(ctx, images[i]);
+    // duration が極端に短いコマを並べられると CPU が張り付くので下限を設ける
+    const wait = Math.max(80, frames[i].duration * 1000);
     i = (i + 1) % frames.length;
     animationTimer = setTimeout(step, wait);
   };
@@ -463,7 +479,7 @@ function draw(pixels, frames) {
     return;
   }
 
-  paint(ctx, frames[0].pixels);
+  paint(ctx, images[0]);
   const play = document.createElement('button');
   play.className = 'play';
   play.type = 'button';
