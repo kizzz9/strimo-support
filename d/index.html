@@ -500,7 +500,16 @@ function showEmptyArt() {
   artEl.replaceChildren();
 }
 
+// 取得の世代。遅れて届いた古い応答が新しい表示を上書きしないようにする
+// （コードAを入力→応答前にコードBを入力→Aが後に届く、で別作者の作品が
+//  Bのコード表示のまま出てしまう）
+let loadGeneration = 0;
+
 async function load(code) {
+  loadGeneration += 1;
+  const generation = loadGeneration;
+  const isCurrent = () => generation === loadGeneration;
+
   codeEl.textContent = code;
   statusWrap.replaceChildren();
   ledeEl.textContent = T.loading;
@@ -528,11 +537,14 @@ async function load(code) {
       clearTimeout(timer);
     }
   } catch (e) {
+    if (!isCurrent()) return;
     showEmptyArt();
     showStatus(T.offline, 'error');
     ledeEl.textContent = '';
     return;
   }
+
+  if (!isCurrent()) return;
 
   if (!json || json.ok === false) {
     showEmptyArt();
@@ -545,6 +557,9 @@ async function load(code) {
   const pixels = await decodePreview(json.preview_pixel_data);
   // アニメーションは無料公開作品にだけ付いてくる（有料は購入して初めて手に入る）
   const frames = json.animation_json ? decodeAnimation(json.animation_json) : null;
+  // 展開・デコードの間にも新しい要求が来ている可能性がある
+  if (!isCurrent()) return;
+
   if (frames || pixels) {
     draw(pixels, frames);
   } else {
