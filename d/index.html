@@ -266,7 +266,15 @@ function codeFromLocation() {
   const q = new URLSearchParams(location.search).get('c');
   if (q) return q.trim().toUpperCase();
   const last = location.pathname.split('/').filter(Boolean).pop() || '';
-  const decoded = decodeURIComponent(last).trim().toUpperCase();
+  // 壊れたパーセントエンコード（%E0%A4%A 等）で decodeURIComponent は throw する。
+  // ここで落ちると以降の初期化が走らず、スピナーのまま固まる
+  let decoded;
+  try {
+    decoded = decodeURIComponent(last);
+  } catch (e) {
+    decoded = last;
+  }
+  decoded = decoded.trim().toUpperCase();
   return CODE_RE.test(decoded) ? decoded : '';
 }
 
@@ -292,12 +300,36 @@ function parseRLE(text) {
   return { size, flat };
 }
 
+// 展開後の上限。128x128 を全マス別色（"#RRGGBB*1," = 10文字）でも 164KB 程度なので
+// 1MB あれば正規のデータは通る。
+// 上限が無いと、圧縮すると小さいが展開すると数百MBになるデータ（zip bomb）を
+// 公開されただけで閲覧者のタブを潰せる。サーバ側は圧縮後のサイズしか見られない
+const MAX_INFLATED_BYTES = 1024 * 1024;
+
 /** "Z:{size}|{base64}" は raw DEFLATE。Apple の COMPRESSION_ZLIB が生の deflate を吐く */
 async function inflateRaw(bytes) {
   for (const format of ['deflate-raw', 'deflate']) {
     try {
       const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream(format));
-      return await new Response(stream).text();
+      const reader = stream.getReader();
+      const chunks = [];
+      let total = 0;
+      try {
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          total += value.byteLength;
+          // 全部読み切ってから測ると手遅れなので、読みながら打ち切る
+          if (total > MAX_INFLATED_BYTES) {
+            await reader.cancel();
+            return null;
+          }
+          chunks.push(value);
+        }
+      } finally {
+        reader.releaseLock();
+      }
+      return new TextDecoder().decode(await new Blob(chunks).arrayBuffer());
     } catch (e) { /* 次の形式を試す */ }
   }
   return null;
