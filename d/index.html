@@ -508,16 +508,25 @@ async function load(code) {
 
   let json;
   try {
-    const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/redeem_design_code', {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_ANON,
-        'Authorization': 'Bearer ' + SUPABASE_ANON,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ p_design_code: code }),
-    });
-    json = await res.json();
+    // 応答が返らないまま繋がり続ける相手だと、fetch は pending のままになり
+    // スピナーが永久に回る。自前で打ち切る
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort(), 15000);
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/redeem_design_code', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': 'Bearer ' + SUPABASE_ANON,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ p_design_code: code }),
+        signal: abort.signal,
+      });
+      json = await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
   } catch (e) {
     showEmptyArt();
     showStatus(T.offline, 'error');
