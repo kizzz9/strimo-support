@@ -226,8 +226,8 @@ body {
 const SUPABASE_URL = 'https://qvfamomkdkywybjnzzal.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2ZmFtb21rZGt5d3liam56emFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4MDY5NTEsImV4cCI6MjA4NzM4Mjk1MX0.5bp5iLKHQ4NUYL6mRZaEL1rYKSFi8v4DGbVmy1PgMUE';
 
-// リリース後に App Store のプロダクトページへ差し替える1行
-const APP_URL = 'https://kizzz9.github.io/strimo-support/';
+// App Store プロダクトページ（リリース後に有効になる。ID は App Store Connect の Apple ID）
+const APP_URL = 'https://apps.apple.com/app/id6759969308';
 
 const JA = (navigator.language || 'en').toLowerCase().startsWith('ja');
 const T = {
@@ -237,10 +237,10 @@ const T = {
   invalid:    JA ? 'コードの形式が違います' : 'That code format is not valid',
   free:       JA ? '無料で共有中' : 'Shared for free',
   paid:       JA ? 'マーケットで販売中' : 'On sale in the Market',
-  ledeFree:   JA ? 'このデザインは Strimo アプリで受け取れます。受け取ったモンスターは Lv.1 から育てていきます。'
-                 : 'You can receive this design in the Strimo app. The Monster starts at Lv.1 and grows from there.',
-  ledePaid:   JA ? '動いているところは誰でも見られます。自分のモンスターとして使うには、Strimo のマーケットで購入してください。売れるたびに作者へ還元されます。'
-                 : 'Anyone can watch it move. To use it as your own Monster, buy it in the Strimo Market — the creator earns from every sale.',
+  ledeFree:   JA ? 'アプリでこのコードを読み取ると、このデザインのモンスターを育てられます。'
+                 : 'Scan this code in the app to raise a Monster with this design.',
+  ledePaid:   JA ? 'アプリのマーケットで購入すると、このデザインのモンスターを育てられます。'
+                 : 'Buy it in the in-app Market to raise a Monster with this design.',
   ledeEmpty:  JA ? 'デザインコードを入力すると作品を見られます。' : 'Enter a design code to see the design.',
   cta:        JA ? 'Strimo を見る' : 'See Strimo',
   support:    JA ? 'Strimo のサポートページ' : 'Strimo support',
