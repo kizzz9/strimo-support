@@ -407,7 +407,7 @@ tr:nth-child(even) td { background: rgba(61,220,151,.03); }
     var token = tsEl ? tsEl.value : '';
     if (!token) { st.textContent = 'Please complete the "I am not a robot" check.'; st.className = 'form-status err'; return; }
     btn.disabled = true; st.textContent = '...'; st.className = 'form-status';
-    fetch('https://qvfamomkdkywybjnzzal.supabase.co/functions/v1/web-contact', {
+    fetch('https://ttnmovihngrtyflkuwws.supabase.co/functions/v1/web-contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: f.name.value, email: f.email.value, message: msg, website: f.website.value, lang: 'en', token: token })
